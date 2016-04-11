@@ -2,8 +2,8 @@
 
 Drone controller code
 
-Emma Phillips
 Annie Barbeau
+Emma Phillips
 Marc Hosecloth
 Jeffery Tso
 Jordan King
