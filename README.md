@@ -1,6 +1,6 @@
 # drone-controller
 
-Drone controller
+Drone controller code
 
 Emma Phillips
 Annie Barbeau
