@@ -42,6 +42,15 @@
 # you’ll need to use a recent version of Wireshark since older versions do not know how to parse
 # AR.Parrot messages.
 
+#Developer Guide - http://www.robotappstore.com/Files/KB/ARDrone/ARDrone_SDK_1_7_Developer_Guide.pdf
+# Syntax : AT*PCMD=%d,%d,%d,%d,%d,%d<LF>
+# Argument 1 : the sequence number
+# Argument 2 : flag enabling the use of progressive commands and/or the Combined Yaw mode (bitfield)
+# Argument 3 : drone left-right tilt - floating-point value in range [−1..1]
+# Argument 4 : drone front-back tilt - floating-point value in range [−1..1]
+# Argument 5 : drone vertical speed - floating-point value in range [−1..1]
+# Argument 6 : drone angular speed - floating-point value in range [−1..1]
+
 
 import socket
 import sys, tty, termios
@@ -104,6 +113,44 @@ def toggleEmergencyMode():
     shutdown_cmd = setBits([8])
     sendCommand("AT*REF=%d,%d\r" % (seqno,shutdown_cmd))
 
+
+def roll(direction): #fly left/right
+
+    global seqno
+    #roll_cmd = setBits([0,1]) 
+    if direction == 'j': #fly left at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, -1098907648,0,0,0))
+    elif direction == 'k': #fly right at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 1048576000,0,0,0))
+
+def pitch(direction): #fly front/back
+
+    global seqno
+    #pitch_cmd = setBits([0,1])
+    if direction == 'i': #fly frontwards at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,-1098907648,0,0))
+    elif direction == 'm':#fly backwards at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,1048576000,0,0))
+
+def gaz(direction): #fly up/down
+
+    global seqno
+    #gaz_cmd = setBits([0,1])
+    if direction == 'r': #fly upwards at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,1048576000,0))
+    elif direction == 'c': #fly downwards at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,-1098907648,0))
+
+def yaw(direction): #spin left/right
+
+    global seqno
+    #yaw_cmd = setBits([0])
+    if direction == 'd': #spin counterclockwise at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,0,-1098907648))
+    elif direction == 'c': #fly clockwise at 1/4 speed
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,0,1048576000))
+
+
 def printUsage():
     print "\n\n"
     print "Keyboard commands:"
@@ -111,6 +158,14 @@ def printUsage():
     print "\tt       - takeoff"
     print "\tl       - land"
     print "\t(space) - emergency shutoff"
+    print "\tj       - roll L"
+    print "\tk       - roll R"
+    print "\ti       - pitch front"
+    print "\tm       - pitch back"
+    print "\tr       - fly up"
+    print "\tc       - fly down"
+    print "\td       - spin clockwise"
+    print "\tf       - spin counterclockwise"
 
 
 
@@ -137,6 +192,19 @@ while True:
     elif ch == ' ':
         reset()
         toggleEmergencyMode()
+
+    elif ch == 'j' or ch == 'k':
+        roll(ch)
+
+    elif ch == 'i' or ch == 'm':
+        pitch(ch)
+
+    elif ch == 'r' or ch == 'c':
+        gaz(ch)
+
+    elif ch == 'd' or ch == 'f':
+        yaw(ch)
+    
     else:
         print "Invalid command!"
         
