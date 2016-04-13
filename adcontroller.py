@@ -1,3 +1,4 @@
+# encoding: UTF-8
 ##
 ## A very low level AR.Drone2.0 Python controller
 ## by Micah Sherr
@@ -19,7 +20,6 @@
 # tilt), gaz (vertical speed), and yaw (angular speed).
 # • Your controller should be interactive – the user should be able to issue the above commands
 # using single keystrokes (without having to press ENTER).
-
 
 # Although you don’t have to base your code off of the above, we strongly encourage you to do so.
 # You do not need to cite our code. You may not use the Parrot SDK — your controller must craft its
@@ -83,7 +83,7 @@ def sendCommand( cmd ):
     global seqno
     global s
     print "DEBUG: Sending:  '%s'" % cmd.strip()
-    s.sendto(cmd,address)
+    s.sendto(cmd ,address)
     seqno += 1
 
 
@@ -119,36 +119,41 @@ def roll(direction): #fly left/right
     global seqno
     #roll_cmd = setBits([0,1]) 
     if direction == 'j': #fly left at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, -1098907648,0,0,0))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, -1098907648,0,0,0))
     elif direction == 'k': #fly right at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 1048576000,0,0,0))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 1048576000,0,0,0))
 
 def pitch(direction): #fly front/back
 
     global seqno
     #pitch_cmd = setBits([0,1])
     if direction == 'i': #fly frontwards at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,-1098907648,0,0))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,-1098907648,0,0))
     elif direction == 'm':#fly backwards at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,1048576000,0,0))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,1048576000,0,0))
 
 def gaz(direction): #fly up/down
+
+    # global seqno
+    # gaz_cmd = setBits([0])
+    # for i in xrange(1,25):
+    #     sendCommand("AT*PCMD=%d,%d\r" % (seqno,gaz_cmd))
 
     global seqno
     #gaz_cmd = setBits([0,1])
     if direction == 'r': #fly upwards at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,1048576000,0))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1,0,0,1048576000,0))
     elif direction == 'c': #fly downwards at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,-1098907648,0))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,0,-1098907648,0))
 
 def yaw(direction): #spin left/right
 
     global seqno
     #yaw_cmd = setBits([0])
     if direction == 'd': #spin counterclockwise at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,0,-1098907648))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,0,0,-1098907648))
     elif direction == 'c': #fly clockwise at 1/4 speed
-        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d" % (seqno,1, 0,0,0,1048576000))
+        sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,0,0,1048576000))
 
 
 def printUsage():
