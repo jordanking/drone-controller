@@ -84,7 +84,7 @@ def yaw(direction): #spin left/right
 
     if direction == 'd': #spin counterclockwise at 1/4 speed
         sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,0,0,-1098907648))
-    elif direction == 'c': #fly clockwise at 1/4 speed
+    elif direction == 'f': #fly clockwise at 1/4 speed
         sendCommand("AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,0,0,1048576000))
 
 def printUsage():
