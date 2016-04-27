@@ -1,6 +1,10 @@
 # encoding: UTF-8
 import socket
 import sys, tty, termios
+from scapy.all import *
+
+DRONE_NET_INTERFACE = 'en1'
+isScramble = False
 
 def getChar():
     fd = sys.stdin.fileno()
@@ -23,12 +27,54 @@ def setBits( lst ):
         res |= (1 << b)
     return res
 
+def fakeCommand(cmd):
+    global address
+
+    print("Fake Command")
+    forged = None
+    try:
+        forged = Ether(dst=RandMAC(), src=RandMAC()) / IP(dst=address[0], src=RandIP()) / UDP(sport=5555, dport=address[1]) / cmd
+    except Exception as e:
+        print(e)
+        print('forging failed')
+        return
+
+
+    del forged.chksum
+    forged = forged.__class__(str(forged))
+    # print("red herring packet!")
+    sendp(forged, iface=DRONE_NET_INTERFACE)
+
+def fakeFeedback(cmd):
+    global address
+
+    print("Fake Feedback")
+    forged = None
+    try:
+        forged = Ether(dst=RandMAC(), src=RandMAC()) / IP(dst=RandIP(), src=address[0]) / UDP(sport=5555, dport=address[1]) / cmd
+    except Exception as e:
+        print(e)
+        print('forging failed')
+        return
+
+
+    del forged.chksum
+    forged = forged.__class__(str(forged))
+    # print("red herring packet!")
+    sendp(forged, iface=DRONE_NET_INTERFACE)
+
 def sendCommand( cmd ):
     global address
     global seqno
     global s
+    global isScramble
+
     print "DEBUG: Sending:  '%s'" % cmd.strip()
-    s.sendto(cmd ,address)
+    s.sendto(cmd,address)
+
+    if isScramble:
+        scramble(cmd)
+
     seqno += 1
 
 def reset():
@@ -118,6 +164,12 @@ while True:
     ch = getChar()
     if ch == 'q':
         exit(0)
+    elif ch == 's':
+        global seqno
+        cmd = "AT*PCMD=%d,%d,%d,%d,%d,%d\r" % (seqno,1, 0,0,0,1048576000)
+        # for i in range(0, 10):
+        fakeCommand(cmd)
+        fakeFeedback(cmd)
     elif ch == 't':
         takeoff()
     elif ch == 'l':
