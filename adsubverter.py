@@ -16,7 +16,7 @@ DRONE_NET_INTERFACE = 'en1'
 
 # if you want to subvert a local controller set pcap mode to true
 # otherwise, specify a pcap dump here
-PCAP_FILE = 'wsdmp.pcap'
+PCAP_FILE = 'dronecap.pcap'
 PCAP_MODE = True
 
 # for the subverter instance
